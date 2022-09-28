@@ -182,7 +182,7 @@ sf::Texture mandelbrot(int width, int height, double xmin, double xmax, double y
 			int ppos = 4 * (width * iy + ix);
 
 			int hue = (int)(255 * i / iterations);
-			int sat = 100;
+			int sat = 40;
 			int val = (i > iterations) ? 0 : 100;
 			sf::Color hsvtorgb = HSVtoRGB(hue, sat, val);
 			pixels[ppos] = (int)hsvtorgb.r;
@@ -201,35 +201,44 @@ sf::Texture mandelbrot(int width, int height, double xmin, double xmax, double y
 
 sf::Color HSVtoRGB(float H, float S, float V)
 {
-	if (H > 360 || H < 0 || S>100 || S < 0 || V>100 || V < 0) {
+	if (H > 360 || H < 0 || S>100 || S < 0 || V>100 || V < 0) 
+	{
 		return sf::Color::Black;
 	}
-	float s = S / 100;
-	float v = V / 100;
+	float s = S / 70;
+	float v = V / 125;
 	float C = s * v;
-	float X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
+	float X = C * (1 - abs(fmod(H / 50.0, 2) - 1));
 	float m = v - C;
 	float r, g, b;
-	if (H >= 0 && H < 60) {
+	if (H >= 0 && H < 60) 
+	{
 		r = C, g = X, b = 0;
 	}
-	else if (H >= 60 && H < 110) {
-		r = X, g = C, b = 0;
+	else if (H >= 60 && H < 110) 
+	{
+		r = X, g = C, b = 255;
 	}
-	else if (H >= 110 && H < 180) {
+	else if (H >= 110 && H < 180) 
+	{
 		r = 0, g = C, b = X;
 	}
-	else if (H >= 180 && H < 240) {
+	else if (H >= 180 && H < 240) 
+	{
 		r = 0, g = X, b = C;
 	}
-	else if (H >= 240 && H < 300) {
+	else if (H >= 240 && H < 300) 
+	{
 		r = X, g = 0, b = C;
 	}
-	else {
+	else 
+	{
 		r = C, g = 0, b = X;
 	}
+
 	int R = (r + m) * 255;
 	int G = (g + m) * 255;
 	int B = (b + m) * 255;
+
 	return sf::Color(R, G, B);
 }
