@@ -1,30 +1,31 @@
 #include <SFML/Graphics.hpp>
 #include <math.h>
 #include <iostream>
+#include "ComplexPlane.h"
+
 
 sf::Color HSVtoRGB(float H, float S, float V);
 double normalize(double value, double localMin, double localMax, double min, double max);
 double mandelIter(double cx, double cy, int maxIter);
 sf::Texture mandelbrot(int width, int height, double xmin, double xmax, double ymin, double ymax, int iterations);
+
 using namespace sf;
 using namespace std;
 int main()
 {
-	unsigned int width = 1600;
-	unsigned int height = 900;
+	unsigned int width = VideoMode::getDesktopMode().width;
+	unsigned int height = VideoMode::getDesktopMode().height;
 
-	sf::RenderWindow window(sf::VideoMode(width, height), "mandelbrot");
+	RenderWindow window(sf::VideoMode(width, height), "Project");
 
-	window.setFramerateLimit(60);
+	Texture mandelTexture;
+	Sprite mandelSprite;
 
-	sf::Texture mandelTexture;
-	sf::Sprite mandelSprite;
-
-	sf::RectangleShape zoomBorder(sf::Vector2f(width / 8, height / 8));
-	zoomBorder.setFillColor(sf::Color(0, 0, 0, 0));
-	zoomBorder.setOutlineColor(sf::Color(255, 255, 255, 128));
+	RectangleShape zoomBorder(Vector2f(width / 8, height / 8));
+	zoomBorder.setFillColor(Color(0, 0, 0, 0));
+	zoomBorder.setOutlineColor(Color(255, 255, 255, 128));
 	zoomBorder.setOutlineThickness(1.0f);
-	zoomBorder.setOrigin(sf::Vector2f(zoomBorder.getSize().x / 2, zoomBorder.getSize().y / 2));
+	zoomBorder.setOrigin(Vector2f(zoomBorder.getSize().x / 2, zoomBorder.getSize().y / 2));
 
 	double oxmin = -2.4;
 	double oxmax = 1.0;
@@ -38,13 +39,10 @@ int main()
 	double ymin = oymin;
 	double ymax = oymax;
 
-	int recLevel = 1;
-	int precision = 64;
-
 	mandelTexture = mandelbrot(width, height, oxmin, oxmax, oymin, oymax, 100);
 
 	sf::Font font;
-	//font.loadFromFile("fonts/arial.ttf");
+	//put a specific font font.loadFromFile("");
 
 	sf::Text zoomText, precText;
 	zoomText.setFont(font);
@@ -59,6 +57,7 @@ int main()
 		Event evnt;
 		while (window.pollEvent(evnt))
 		{
+			
 			if (evnt.type == Event::Closed)
             {
                 window.close();
