@@ -6,7 +6,8 @@ sf::Color HSVtoRGB(float H, float S, float V);
 double normalize(double value, double localMin, double localMax, double min, double max);
 double mandelIter(double cx, double cy, int maxIter);
 sf::Texture mandelbrot(int width, int height, double xmin, double xmax, double ymin, double ymax, int iterations);
-
+using namespace sf;
+using namespace std;
 int main()
 {
 	unsigned int width = 1600;
@@ -55,39 +56,13 @@ int main()
 
 	while (window.isOpen())
 	{
-		sf::Event evnt;
+		Event evnt;
 		while (window.pollEvent(evnt))
 		{
-			switch (evnt.type)
-			{
-			case sf::Event::Closed:
-				window.close();
-				break;
-			case sf::Event::KeyReleased:
-				if (evnt.key.code == sf::Keyboard::Key::O)
-				{
-					recLevel = 1;
-					precision = 128;
-
-					xmin = oxmin;
-					xmax = oxmax;
-					yRange = oyRange;
-					ymin = oymin;
-					ymax = oymax;
-				}
+			if (evnt.type == Event::Closed)
+            {
+                window.close();
 				mandelTexture = mandelbrot(width, height, xmin, xmax, ymin, ymax, precision);
-				break;
-			case sf::Event::MouseWheelScrolled:
-				if (evnt.mouseWheelScroll.delta <= 0)
-				{
-					precision /= 2;
-				}
-				else
-				{
-					precision *= 2;
-				}
-				mandelTexture = mandelbrot(width, height, xmin, xmax, ymin, ymax, precision);
-				break;
 			}
 		}
 
