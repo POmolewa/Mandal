@@ -42,7 +42,7 @@ int main()
 	//int MaxIterations = 64;
 	int recLevel = 1;
 	Zoom Zoomwindow; // Remove
-	mandelTexture = mandelbrot(width, height, oxmin, oxmax, oymin, oymax, 100);
+	mandelTexture = mandelbrot(width, height, oxmin, oxmax, oymin, oymax, Zoomwindow.getZoom());
 
 	sf::Font font;
 	//put a specific font font.loadFromFile("");
