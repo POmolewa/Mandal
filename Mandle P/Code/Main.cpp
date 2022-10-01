@@ -4,31 +4,31 @@
 #include "ComplexPlane.h"
 
 
-sf::Color HSVtoRGB(float H, float S, float V);
-double normalize(double value, double localMin, double localMax, double min, double max);
-double mandelIter(double cx, double cy, int maxIter);
+
+double RealValue(double value, double localMin, double localMax, double min, double max);
+double FindMandle(double cx, double cy, int maxIter);
 sf::Texture mandelbrot(int width, int height, double xmin, double xmax, double ymin, double ymax, int iterations);
 
 using namespace sf;
 using namespace std;
 int main()
 {
-	unsigned int width = VideoMode::getDesktopMode().width;
-	unsigned int height = VideoMode::getDesktopMode().height;
+	 int width = VideoMode::getDesktopMode().width;
+	 int height = VideoMode::getDesktopMode().height;
 
 	RenderWindow window(sf::VideoMode(width, height), "Project");
 
 	Texture mandelTexture;
 	Sprite mandelSprite;
 
-	RectangleShape zoomBorder(Vector2f(width / 8, height / 8));
+	RectangleShape zoomBorder(Vector2f(width / 2, height / 2));
 	zoomBorder.setFillColor(Color(0, 0, 0, 0));
-	zoomBorder.setOutlineColor(Color(255, 255, 255, 128));
+	zoomBorder.setOutlineColor(Color(0, 126, 126, 126));
 	zoomBorder.setOutlineThickness(1.0f);
 	zoomBorder.setOrigin(Vector2f(zoomBorder.getSize().x / 2, zoomBorder.getSize().y / 2));
 
-	double oxmin = -2.4;
-	double oxmax = 1.0;
+	double oxmin = -4.0;
+	double oxmax = 4.0;
 	double oyRange = (abs(oxmin) + abs(oxmax)) * height / width;
 	double oymin = -oyRange / 2;
 	double oymax = oyRange / 2;
@@ -39,6 +39,9 @@ int main()
 	double ymin = oymin;
 	double ymax = oymax;
 
+	//int MaxIterations = 64;
+	int recLevel = 1;
+	Zoom Zoomwindow; // Remove
 	mandelTexture = mandelbrot(width, height, oxmin, oxmax, oymin, oymax, 100);
 
 	sf::Font font;
@@ -60,8 +63,8 @@ int main()
 			
 			if (evnt.type == Event::Closed)
             {
-                window.close();
-				mandelTexture = mandelbrot(width, height, xmin, xmax, ymin, ymax, precision);
+                window.close();															//remove
+				mandelTexture = mandelbrot(width, height, xmin, xmax, ymin, ymax, Zoomwindow.getZoom());
 			}
 		}
 
@@ -76,25 +79,25 @@ int main()
 			double y2 = y + zoomBorder.getSize().y;
 
 			//from px range to grid range
-			double normX = normalize(x, 0.0, width, xmin, xmax);
-			double normY = normalize(y, 0.0, height, ymin, ymax);
+			double Realx = RealValue(x, 0.0, width, xmin, xmax);
+			double Realy = RealValue(y, 0.0, height, ymin, ymax);
 
-			double widthNorm = normalize(x2, 0.0, width, xmin, xmax);
-			double heightNorm = normalize(y2, 0.0, height, ymin, ymax);
+			double widthNorm = RealValue(x2, 0.0, width, xmin, xmax);
+			double heightNorm = RealValue(y2, 0.0, height, ymin, ymax);
 
-			xmin = normX;
+			xmin = Realx;
 			xmax = widthNorm;
-			ymin = normY;
+			ymin = Realy;
 			ymax = heightNorm;
 
-			mandelTexture = mandelbrot(width, height, xmin, xmax, ymin, ymax, precision);
+			mandelTexture = mandelbrot(width, height, xmin, xmax, ymin, ymax, Zoomwindow.getZoom());
 		}
 
 		zoomText.setString("Zoom: " + std::to_string(pow(8, recLevel - 1)));
-		precText.setString("Max. Iterations: " + std::to_string(precision));
-		precText.setPosition(sf::Vector2f(0, 32));
+		precText.setString("Max. Iterations: " + std::to_string(Zoomwindow.getZoom()));
+		precText.setPosition(Vector2f(0, 32));
 
-		zoomBorder.setPosition(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+		zoomBorder.setPosition(Mouse::getPosition(window).x,Mouse::getPosition(window).y);
 
 		mandelSprite.setTexture(mandelTexture);
 
@@ -111,54 +114,52 @@ int main()
 	return 0;
 }
 
-double normalize(double value, double localMin, double localMax, double min, double max)
+double RealValue(double value, double localMin, double localMax, double min, double max)
 {
-	double normalized = (value - localMin) / (localMax - localMin);
-	normalized = normalized * (max - min);
-	normalized += min;
-	return normalized;
+	double Real = (value - localMin) / (localMax - localMin);
+	Real = Real * (max - min);
+	Real += min;
+	return Real;
 }
 
-double mandelIter(double cx, double cy, int maxIter) {
-	double x = 0.0;
-	double y = 0.0;
-	double xx = 0.0;
-	double yy = 0.0;
-	double xy = 0.0;
-
-	double i = maxIter;
-	while (i-- && xx + yy <= 4) {
-		xy = x * y;
-		xx = x * x;
-		yy = y * y;
-		x = xx - yy + cx;
-		y = xy + xy + cy;
+double FindMandle(double cx, double cy, int maxIter) 
+{
+	int i = 0;
+	double zr = 0.0, zi = 0.0;
+	while (i < maxIter && zr * zr * zi < 4.0)
+	{
+		double temp = zr * zr - zi * zi + cx;
+		zi = 2.0 * zr * zi + cy;
+		zr = temp;
+		i++;
 	}
-	return maxIter - i;
+	return i;
+
 }
 
-sf::Texture mandelbrot(int width, int height, double xmin, double xmax, double ymin, double ymax, int iterations)
+Texture mandelbrot(int width, int height, double xmin, double xmax, double ymin, double ymax, int iterations)
 {
-	sf::Texture texture;
+	Texture texture;
 	texture.create(width, height);
 
-	sf::Uint8* pixels = new sf::Uint8[width * height * 4];
+	Uint8* pixels = new Uint8[width * height * 4];
 
-	for (int ix = 0; ix < width; ix++)
+	for (int index = 0; index < width; index++)
 	{
-		for (int iy = 0; iy < height; iy++)
+		for (int i = 0; i < height; i++)
 		{
-			double x = xmin + (xmax - xmin) * ix / (width - 1.0);
-			double y = ymin + (ymax - ymin) * iy / (height - 1.0);
+			double x = xmin + (xmax - xmin) * index / (width - 1.0);
+			double y = ymin + (ymax - ymin) * i / (height - 1.0);
 
-			double i = mandelIter(x, y, iterations);
+			int Ipoint = FindMandle(x, y, iterations);
 
-			int ppos = 4 * (width * iy + ix);
+			int ppos = 4 * (width * i + index);
 
-			int hue = (int)(255 * i / iterations);
-			int sat = 40;
-			int val = (i > iterations) ? 0 : 100;
-			sf::Color hsvtorgb = HSVtoRGB(hue, sat, val);
+			int hue = ((Ipoint * Ipoint) % 256);
+			int sat = ((Ipoint * Ipoint) % 256);
+			int val = (Ipoint % 256);
+
+			Color hsvtorgb = Color (hue, sat, val);
 			pixels[ppos] = (int)hsvtorgb.r;
 			pixels[ppos + 1] = (int)hsvtorgb.g;
 			pixels[ppos + 2] = (int)hsvtorgb.b;
@@ -171,48 +172,4 @@ sf::Texture mandelbrot(int width, int height, double xmin, double xmax, double y
 	delete[] pixels;
 
 	return texture;
-}
-
-sf::Color HSVtoRGB(float H, float S, float V)
-{
-	if (H > 360 || H < 0 || S>100 || S < 0 || V>100 || V < 0) 
-	{
-		return sf::Color::Black;
-	}
-	float s = S / 70;
-	float v = V / 125;
-	float C = s * v;
-	float X = C * (1 - abs(fmod(H / 50.0, 2) - 1));
-	float m = v - C;
-	float r, g, b;
-	if (H >= 0 && H < 60) 
-	{
-		r = C, g = X, b = 0;
-	}
-	else if (H >= 60 && H < 110) 
-	{
-		r = X, g = C, b = 255;
-	}
-	else if (H >= 110 && H < 180) 
-	{
-		r = 0, g = C, b = X;
-	}
-	else if (H >= 180 && H < 240) 
-	{
-		r = 0, g = X, b = C;
-	}
-	else if (H >= 240 && H < 300) 
-	{
-		r = X, g = 0, b = C;
-	}
-	else 
-	{
-		r = C, g = 0, b = X;
-	}
-
-	int R = (r + m) * 255;
-	int G = (g + m) * 255;
-	int B = (b + m) * 255;
-
-	return sf::Color(R, G, B);
 }

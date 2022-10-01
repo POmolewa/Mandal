@@ -3,3 +3,7 @@
 
 using namespace std;
 
+int Zoom::getZoom()
+{
+	return MAX_ITER;
+}

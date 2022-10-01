@@ -4,6 +4,7 @@
 class Zoom 
 {
     public:
+        int getZoom();
 
     
     private:
