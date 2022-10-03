@@ -117,10 +117,10 @@ Texture mandelbrot(int width, int height, double xmin, double xmax, double ymin,
 			int sat = ((sqrt(static_cast<int>(Ipoint) % 256)));
 			int val = ((Ipoint * Ipoint) % 256);
 
-			Color hsvtorgb = Color (hue, sat, val);
-			pixels[ppos] = (int)hsvtorgb.r;
-			pixels[ppos + 1] = (int)hsvtorgb.g;
-			pixels[ppos + 2] = (int)hsvtorgb.b;
+			Color IterationstoRGB = Color (hue, sat, val);
+			pixels[ppos] = (int)IterationstoRGB.r;
+			pixels[ppos + 1] = (int)IterationstoRGB.g;
+			pixels[ppos + 2] = (int)IterationstoRGB.b;
 			pixels[ppos + 3] = 255;
 		}
 	}
